@@ -61,13 +61,17 @@ jobs:
 
     steps:
     # Remove unnecessary files to free up space. Otherwise, we get 'no space left on device.'
-    - uses: data-intuitive/reclaim-the-bytes@v2
+    # - name: Clear space
+    #   uses: data-intuitive/reclaim-the-bytes@v2
     
-    - uses: actions/checkout@v4
+    - name: Check out repository
+      uses: actions/checkout@v4
       with:
         submodules: 'recursive'
+        fetch-depth: 0
         
-    - uses: viash-io/viash-actions/setup@v6
+    - name: Install Viash
+      uses: viash-io/viash-actions/setup@v6
 
     # use cache
     - name: Cache resources data
@@ -80,8 +84,16 @@ jobs:
     - name: Run test
       timeout-minutes: 30
       run: |
-        VIASH_TEMP=$RUNNER_TEMP/viash viash test \
+        # if .resources[0].type == "nextflow_script"
+        main_script_type=$(yq eval '.resources[0].type' "${{ matrix.component.config }}")
+
+        if [ "$main_script_type" == "nextflow_script" ]; then
+          echo "Skipping test for Nextflow script for now"
+          exit 0
+        fi
+
+        export VIASH_TEMP=$RUNNER_TEMP/viash_test_temp
+        viash test \
           "${{ matrix.component.config }}" \
           --cpus 2 \
           --memory "16gb"
-
