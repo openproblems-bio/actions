@@ -22,7 +22,7 @@ jobs:
     if: ${{ needs.run_ci_check_job.outputs.run == 'true' }}
 
     outputs:
-      matrix: ${{ steps.ns_list_filtered.outputs.output_matrix }}
+      matrix: ${{ steps.ns_list_filter_nextflow.outputs.output_matrix }}
       cache_key: ${{ steps.cache.outputs.cache_key }}
       dest_paths: ${{ steps.cache.outputs.dest_paths }}
 
@@ -38,15 +38,21 @@ jobs:
       id: cache
 
     - id: ns_list
-      uses: viash-io/viash-actions/ns-list@v6
+      uses: viash-io/viash-actions/ns-list@add_sync_and_cache
       with:
         format: json
         runner: executable
 
-    - id: ns_list_filtered
-      uses: viash-io/viash-actions/project/detect-changed-components@v6
+    - id: ns_list_filter_changed
+      uses: viash-io/viash-actions/project/detect-changed-components@add_sync_and_cache
       with:
         input_file: "${{ steps.ns_list.outputs.output_file }}"
+
+    - name: Filter out Nextflow scripts (currently not supported)
+      id: ns_list_filter_nextflow
+      run: |
+        OUTPUT_MATRIX=$(jq -c 'map(select(.main_script_type != "nextflow_script"))' "${{ steps.ns_list.outputs.output_file }}")
+        echo "output_matrix=$OUTPUT_MATRIX" >> $GITHUB_OUTPUT
 
   # phase 2
   viash_test:
@@ -84,14 +90,6 @@ jobs:
     - name: Run test
       timeout-minutes: 30
       run: |
-        # if .resources[0].type == "nextflow_script"
-        main_script_type=$(yq eval '.resources[0].type' "${{ matrix.component.config }}")
-
-        if [ "$main_script_type" == "nextflow_script" ]; then
-          echo "Skipping test for Nextflow script for now"
-          exit 0
-        fi
-
         export VIASH_TEMP=$RUNNER_TEMP/viash_test_temp
         viash test \
           "${{ matrix.component.config }}" \
