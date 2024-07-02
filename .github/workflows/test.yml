@@ -51,7 +51,7 @@ jobs:
     - name: Filter out Nextflow scripts (currently not supported)
       id: ns_list_filter_nextflow
       run: |
-        OUTPUT_MATRIX=$(jq -c 'map(select(.main_script_type != "nextflow_script"))' "${{ steps.ns_list.outputs.output_file }}")
+        OUTPUT_MATRIX=$(jq -c 'map(select(.main_script_type != "nextflow_script"))' "${{ steps.ns_list_filter_changed.outputs.output_matrix }}")
         echo "output_matrix=$OUTPUT_MATRIX" >> $GITHUB_OUTPUT
 
   # phase 2
