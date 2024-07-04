@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: 'Check if branch has an existing pull request and the trigger was a push'
         id: github_cli
-        uses: viash-io/viash-actions/project/check-concurrent-pr@add_sync_and_cache
+        uses: viash-io/viash-actions/project/check-concurrent-pr@v6
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -34,17 +34,17 @@ jobs:
 
     - uses: viash-io/viash-actions/setup@v6
 
-    - uses: viash-io/viash-actions/project/sync-and-cache@add_sync_and_cache
+    - uses: viash-io/viash-actions/project/sync-and-cache@v6
       id: cache
 
     - id: ns_list
-      uses: viash-io/viash-actions/ns-list@add_sync_and_cache
+      uses: viash-io/viash-actions/ns-list@v6
       with:
         format: json
         runner: executable
 
     - id: ns_list_filter_changed
-      uses: viash-io/viash-actions/project/detect-changed-components@add_sync_and_cache
+      uses: viash-io/viash-actions/project/detect-changed-components@v6
       with:
         input_file: "${{ steps.ns_list.outputs.output_file }}"
 
