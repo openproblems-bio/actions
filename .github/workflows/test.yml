@@ -94,7 +94,6 @@ jobs:
     - name: Run test
       timeout-minutes: 30
       run: |
-        set -e
         export VIASH_TEMP=$RUNNER_TEMP/viash_test_temp
         viash test \
           "${{ matrix.component.config }}" \
