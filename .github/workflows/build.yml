@@ -112,8 +112,10 @@ jobs:
 
       - name: Build image
         run: |
+          set -e
           ${{matrix.component.executable}} ---engine docker ---setup build ---verbose
   
       - name: Push image
         run: |
+          set -e
           ${{matrix.component.executable}} ---engine docker ---setup push ---verbose
