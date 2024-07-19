@@ -4,24 +4,11 @@ on:
   workflow_call:
 
 jobs:
-  run_ci_check_job:
-    name: Check if branch has an existing pull request and the trigger was a push
-    runs-on: ubuntu-latest
-    outputs:
-      run: ${{ steps.github_cli.outputs.run }}
-    steps:
-      - name: 'Check if branch has an existing pull request and the trigger was a push'
-        id: github_cli
-        uses: viash-io/viash-actions/project/check-concurrent-pr@v6
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   # phase 1
   list:
     name: List components
-    needs: run_ci_check_job
     runs-on: ubuntu-latest
-    if: ${{ needs.run_ci_check_job.outputs.run == 'true' }}
 
     outputs:
       matrix: ${{ steps.ns_list_filter_nextflow.outputs.output_matrix }}
